@@ -10,12 +10,6 @@ from flask_bcrypt import Bcrypt
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeSerializer, SignatureExpired
 
-import os
-from dotenv import load_dotenv
-from email.message import EmailMessage
-
-load_dotenv()
-
 
 UPLOAD_FOLDER = 'static/images/product_images'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
@@ -24,17 +18,17 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
 
-app.config["MYSQL_HOST"] = os.getenv('MYSQL_HOST')          #''
-app.config["MYSQL_USER"] = os.getenv('MYSQL_USER')          #''
-app.config["MYSQL_PASSWORD"] = os.getenv('MYSQL_PASSWORD')          #''
-app.config["MYSQL_DB"] = os.getenv('MYSQL_DB')          #''
+app.config["MYSQL_HOST"] = 'sql5.freesqldatabase.com'
+app.config["MYSQL_USER"] = 'sql5407697'
+app.config["MYSQL_PASSWORD"] = 'dmy1zjAqk3'
+app.config["MYSQL_DB"] = 'sql5407697'
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
-app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
-app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_USERNAME'] = 'mitchjaga@gmail.com'
+app.config['MAIL_PASSWORD'] = 'gzmqjhinejescgnk'
 app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_USE_TLS'] = True
 
@@ -97,7 +91,7 @@ def signin():
                     "name": user[0][1],
                     "email": user[0][2],
                     "isAdmin": user[0][4],
-                }, os.getenv('JWT_SECRET_KEY'), algorithm="HS256")
+                }, '28736746835476527365475263rtuyfdcvxvcvskek6ftwefdgfvshcvzghcygsveyfgyefdsbmv', algorithm="HS256")
             
             if user[0][5] == 0:
                 return jsonify({"_id": user[0][0], "name": user[0][1],"email": user[0][2],"isAdmin": user[0][4],"token":encoded_jwt})

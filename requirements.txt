@@ -6,7 +6,4 @@ jwt
 flask_bcrypt
 flask_mail
 itsdangerous
-os
-dotenv
-email
 gunicorn
