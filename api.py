@@ -1,4 +1,3 @@
-import smtplib
 from flask import Flask, json, request, url_for, send_from_directory,send_file
 from flask_mysqldb import MySQL, MySQLdb
 from werkzeug.utils import secure_filename

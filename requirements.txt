@@ -1,4 +1,3 @@
-smtplib
 flask_mysqldb
 werkzeug
 mysql
