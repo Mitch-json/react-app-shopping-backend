@@ -1,4 +1,4 @@
-from flask import Flask, json, request, url_for, send_from_directory,send_file
+from flask import Flask, json, request, url_for, send_from_directory,send_file, make_response
 from flask_mysqldb import MySQL, MySQLdb
 from werkzeug.utils import secure_filename
 import mysql.connector as mq
@@ -18,10 +18,10 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
 
-app.config["MYSQL_HOST"] = 'sql5.freesqldatabase.com'
-app.config["MYSQL_USER"] = 'sql5407697'
-app.config["MYSQL_PASSWORD"] = 'dmy1zjAqk3'
-app.config["MYSQL_DB"] = 'sql5407697'
+app.config["MYSQL_HOST"] = 'localhost'
+app.config["MYSQL_USER"] = 'root'
+app.config["MYSQL_PASSWORD"] = 'I@manartist1'
+app.config["MYSQL_DB"] = 'compproject'
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
@@ -47,13 +47,16 @@ def allowed_file(filename):
 def get_all_users():
     cur = mysql.connection.cursor()
     try:
-            cur.execute("SELECT _id, name, email, isAdmin, suspended FROM users")
-            results = cur.fetchall()
-            users = users_serializer(results)
-            
-            return {"users": users}
+        cur.execute("SELECT _id, name, email, isAdmin, suspended FROM users")
+        results = cur.fetchall()
+        users = users_serializer(results)
+        resp = make_response({"users": users})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
     except MySQLdb.Error as err:
-            return {"err": err.args[1]}
+        resp = make_response({"err": err.args[1]})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
 
 @app.route('/api/admin/user/<column>/<_id>/<value>', methods=["GET"])
 def suspend(column, _id, value):
@@ -63,9 +66,13 @@ def suspend(column, _id, value):
         cur.execute(sql)
         cur.connection.commit()
         cur.close()
-        return {"msg": "User updated"}
+        resp = make_response({"msg": "User updated"})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
     except MySQLdb.Error as err:
-        return {"err": err.args[1]}
+        resp = make_response({"err": err.args[1]})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
 
 @app.route("/api/users/signin", methods=["POST"])
 def signin():
@@ -80,10 +87,14 @@ def signin():
         
         if user:
             if user[0][5] == 1:
-                return jsonify({"sus": "Account Suspended"})
+                resp = make_response({"sus": "Account Suspended"})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp
             pw_hash = user[0][3]
             if not bcrypt.check_password_hash(pw_hash, password):
-                return jsonify({"err": "Invalid password"})
+                resp = make_response({"err": "Invalid password"})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp
             
             encoded_jwt = jwt.encode(
                 {
@@ -94,11 +105,17 @@ def signin():
                 }, '28736746835476527365475263rtuyfdcvxvcvskek6ftwefdgfvshcvzghcygsveyfgyefdsbmv', algorithm="HS256")
             
             if user[0][5] == 0:
-                return jsonify({"_id": user[0][0], "name": user[0][1],"email": user[0][2],"isAdmin": user[0][4],"token":encoded_jwt})
+                resp = make_response({"_id": user[0][0], "name": user[0][1],"email": user[0][2],"isAdmin": user[0][4],"token":encoded_jwt})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp
         else:
-            return jsonify({"err": "Email does not exist"})
+            resp = make_response({"err": "Email does not exist"})
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
     except MySQLdb.Error as err:
-        return {"err": err.args[1]}
+        resp = make_response({"err": err.args[1]})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
 
 @app.route("/api/email", methods=["POST"])
 def send_email():
@@ -109,9 +126,13 @@ def send_email():
     msg.body = code
     try:
         mail.send(msg)
-        return {"msg": "Verification Code sent"}
+        resp = make_response({"msg": "Verification Code sent"})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
     except:
-        return {"err": "Email Not sent, please try again Later"}
+        resp = make_response({"err": "Email Not sent, please try again Later"})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
 
 
 @app.route("/api/users/register", methods=["POST"])
@@ -130,16 +151,21 @@ def register():
         cur.execute(sql)
         user = cur.fetchall()
         if user:
-            return jsonify({"exists": "Email Already Exists"})
+            resp = make_response({"exists": "Email Already Exists"})
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
         else:
             sql = "INSERT INTO users(name, email, password) VALUES(%s, %s, %s)"
             try:
                 cur.execute(sql, (name, email, pw_hash))
                 cur.connection.commit()      
-
-                return jsonify({"msg": "user created"})
+                resp = make_response({"msg": "user created"})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp
             except MySQLdb.Error as err:
-                return {"err": err.args[1]}        
+                resp = make_response({"err": err.args[1]})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp       
     else:
         admin_hash = bcrypt.generate_password_hash("I@manartist1")
         cur.execute("CREATE TABLE users(_id int(50) not null auto_increment PRIMARY KEY, name varchar(200) NOT NULL ,email varchar(80) NOT NULL UNIQUE,password varchar(800) NOT NULL,isAdmin INT DEFAULT 0, suspended INT DEFAULT 0)")
@@ -150,10 +176,13 @@ def register():
         try:
             cur.execute(sql2, (name, email, pw_hash))
             cur.connection.commit()      
-
-            return jsonify({"msg": "user created"})
+            resp = make_response({"msg": "user created"})
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
         except MySQLdb.Error as err:
-            return {"err": err.args[1]}
+            resp = make_response({"err": err.args[1]})
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
                       
     
 
@@ -167,20 +196,30 @@ def upload_file():
             pat = UPLOAD_FOLDER + "/" + file.filename
             try:
                 file.save(pat)
-                return {"msg": "Image saved"}
+                resp = make_response({"msg": "Image saved"})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp
             except:
-                return {"err": "Image not saved"}
+                resp = make_response({"err": "Image not saved"})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp
         else:
-            return {"err": "Image Type not supported"}
+            resp = make_response({"err": "Image Type not supported"})
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
 
 @app.route('/delete-image/<fileName>', methods=["GET"])
 def delete_file(fileName):
     pat = UPLOAD_FOLDER+ "/" +fileName
     try:
         os.remove(pat)
-        return {"msg": "Image removed"}
+        resp = make_response({"msg": "Image removed"})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
     except:
-        return {"err": "Image does not exist"}
+        resp = make_response({"err": "Image does not exist"})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
 
 @app.route('/api/product/<_id>', methods=["GET"])
 def get_a_product(_id):
@@ -191,10 +230,13 @@ def get_a_product(_id):
         cur.execute(sql)
         results = cur.fetchall()
         product = products_serializer(results)
-
-        return {"product": product}
+        resp = make_response({"product": product})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
     except MySQLdb.Error as err:
-        return {"err": err.args[1]}
+        resp = make_response({"err": err.args[1]})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
 
 @app.route('/api/category/<_id>', methods=["GET"])
 def get_a_cat(_id):
@@ -205,10 +247,13 @@ def get_a_cat(_id):
         cur.execute(sql)
         results = cur.fetchall()
         category = categories_serializer(results)
-
-        return {"category": category}
+        resp = make_response({"category": category})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
     except MySQLdb.Error as err:
-        return {"err": err.args[1]}
+        resp = make_response({"err": err.args[1]})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
 
 @app.route('/api/categories/<cat>', methods=["GET"])
 def get_a_category(cat):
@@ -219,10 +264,13 @@ def get_a_category(cat):
         cur.execute(sql)
         results = cur.fetchall()
         products = products_serializer(results)
-
-        return {"products": products}
+        resp = make_response({"products": products})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
     except MySQLdb.Error as err:
-        return {"err": err.args[1]}
+        resp = make_response({"err": err.args[1]})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
 
 @app.route('/api/products/offer', methods=["GET"])
 def get_offer_products():
@@ -232,10 +280,13 @@ def get_offer_products():
         cur.execute("SELECT * FROM products WHERE offer > 0 ORDER BY RAND()")
         results = cur.fetchall()
         products = products_serializer(results)
-        
-        return {"products_with_offer": products}
+        resp = make_response({"products_with_offer": products})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
     except MySQLdb.Error as err:
-        return {"err": err.args[1]}
+        resp = make_response({"err": err.args[1]})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
 
 @app.route('/api/admin/products', methods=["POST", "GET"])
 def add_products():
@@ -260,34 +311,47 @@ def add_products():
                 cur.execute("INSERT INTO products(title, slug, description, price, category, image, origPrice, rating, reviews) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)", (title, slug, description, price, category, image, price, rating, reviews))
                 cur.connection.commit()
                 cur.close()
-                
-                return {"msg": "Product successfully added"}     
+
+                resp = make_response({"msg": "Product successfully added"})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp
             except MySQLdb.Error as err:
-                return {"err": err.args[1]}
+                resp = make_response({"err": err.args[1]})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp
             
         else:
             try:
                 sql ='CREATE TABLE products(_id int(50) not null auto_increment PRIMARY KEY,title varchar(80) NOT NULL,slug varchar(80) NOT NULL,description varchar(200) NOT NULL,price INT NOT NULL,category varchar(40) NOT NULL,image varchar(200) NOT NULL,countInStock INT DEFAULT 120, offer INT DEFAULT 0, origPrice INT, rating FLOAT, reviews INT ,UNIQUE (slug));'
                 cur.execute(sql)
             except MySQLdb.Error as err:
-                return {"err": err.args[1]}
+                resp = make_response({"err": err.args[1]})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp
             
             try:
                 cur.execute("INSERT INTO products(title, slug, description, price, category, image, origPrice, rating, reviews) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s);", (title, slug, description, price, category, image, price, rating, reviews))
                 cur.connection.commit()
                 cur.close()
-                return {"msg": "Product successfully added"}
+                resp = make_response({"msg": "Product successfully added"})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp
             except MySQLdb.Error as err:
-                return {"err": err.args[1]}
+                resp = make_response({"err": err.args[1]})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp
     elif request.method == "GET":
         try:
             cur.execute("SELECT * FROM products ORDER BY RAND()")
             results = cur.fetchall()
             products = products_serializer(results)
-            
-            return {"products": products}
+            resp = make_response({"products": products})
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
         except MySQLdb.Error as err:
-            return {"err": err.args[1]}
+            resp = make_response({"err": err.args[1]})
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
 
 @app.route('/api/admin/product/<_id>/offer/<action>', methods=["GET", "POST"])
 def offer(_id, action):
@@ -314,9 +378,13 @@ def offer(_id, action):
             cur.execute(sql2)
             cur.connection.commit()
             cur.close()
-            return {"msg": "Offer Added"}
+            resp = make_response({"msg": "Offer Added"})
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
         except MySQLdb.Error as err:
-            return {"err": err.args[1]}
+            resp = make_response({"err": err.args[1]})
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
 
     elif request.method == "GET":
         sql = "UPDATE products SET offer='0', price="+"'"+str(origPrice)+"'"+ "WHERE _id="+"'"+_id+"'"
@@ -324,9 +392,13 @@ def offer(_id, action):
             cur.execute(sql)
             cur.connection.commit()
             cur.close()
-            return {"msg": "Offer Removed"}
+            resp = make_response({"msg": "Offer Removed"})
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
         except MySQLdb.Error as err:
-            return {"err": err.args[1]}
+            resp = make_response({"err": err.args[1]})
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
 
 
 @app.route('/api/products/delete/<_id>', methods=["GET"])
@@ -337,9 +409,13 @@ def remove_product(_id):
         cur.execute(sql)
         cur.connection.commit()
         cur.close()
-        return {"msg": "Product deleted"}
+        resp = make_response({"msg"})        
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
     except  MySQLdb.Error as err:
-        return {"err": err.args[1]}
+        resp = make_response({"err": err.args[1]})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
 
 @app.route('/api/categories/delete/<_id>', methods=["GET"])
 def remove_category(_id):
@@ -349,9 +425,13 @@ def remove_category(_id):
         cur.execute(sql)
         cur.connection.commit()
         cur.close()
-        return {"msg": "Category deleted"}
+        resp = make_response({"msg"})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
     except  MySQLdb.Error as err:
-        return {"err": err.args[1]}
+        resp = make_response({"err": err.args[1]})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
         
 @app.route('/api/products/edit/<_id>', methods=["POST", "GET"])
 def edit_product(_id):
@@ -375,9 +455,13 @@ def edit_product(_id):
             cur.execute(sql, (title, slug, description, category,newPrice, price, _id))
             cur.connection.commit()
             cur.close()
-            return {"msg": "Product Updated"}
+            resp = make_response({"msg": "Product Updated"})
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
         except MySQLdb.Error as err:
-            return {"err": err.args[0]}
+            resp = make_response({"err": err.args[0]})
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
 
 @app.route('/api/categories/edit/<_id>', methods=["POST", "GET"])
 def edit_category(_id):
@@ -393,9 +477,13 @@ def edit_category(_id):
             cur.execute(sql, (title, slug, _id))
             cur.connection.commit()
             cur.close()
-            return {"msg": "Category Updated"}
+            resp = make_response({"msg": "Category Updated"})
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
         except MySQLdb.Error as err:
-            return {"err": err.args[0]}
+            resp = make_response({"err": err.args[0]})
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
 
 @app.route('/api/admin/categories', methods=["POST", "GET"])
 def add_category():
@@ -413,33 +501,46 @@ def add_category():
                 cur.execute("INSERT INTO categories(title, slug) VALUES(%s, %s);", (title, slug))
                 cur.connection.commit()
                 cur.close()
-                return {"msg": "Category successfully added"}
+                resp = make_response({"msg": "Category successfully added"})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp
             except MySQLdb.Error as err:
-                return {"err": err.args[1]}
+                resp = make_response({"err": err.args[1]})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp
         else:
             try:
                 sql ='CREATE TABLE categories(_id int(50) not null auto_increment primary key, title varchar(80) NOT NULL,slug varchar(80) NOT NULL, UNIQUE (slug))'
                 cur.execute(sql)
                 
             except MySQLdb.Error as err:
-                return {"err": err.args[1]}
+                resp = make_response({"err": err.args[1]})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp
 
             try:
                 cur.execute("INSERT INTO categories(title, slug) VALUES(%s, %s);", (title, slug))
                 cur.connection.commit()
                 cur.close()
-                return {"msg": "Category successfully added"}
+                resp = make_response({"msg": "Category successfully added"})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp
             except MySQLdb.Error as err:
-                return {"err": err.args[1]}
+                resp = make_response({"err": err.args[1]})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp
     elif request.method == "GET":
         try:
             cur.execute("SELECT * FROM categories")
             results = cur.fetchall()
             categories = categories_serializer(results)
-
-            return {"categories": categories}
+            resp = make_response({"categories": categories})
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
         except MySQLdb.Error as err:
-            return {"err": err.args[1]}
+            resp = make_response({"err": err.args[1]})
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
 
 @app.route('/api/orders/<userId>', methods=["POST", "GET"])
 def place_order(userId):
@@ -465,7 +566,9 @@ def place_order(userId):
             cur.connection.commit()
 
         cur.close()
-        return {"msg": "ok"}
+        resp = make_response({"msg": "ok"})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
 
     elif request.method == "GET":
         cur.execute("SELECT orders.userId, orders.productId, orders.ordertime, orders.price, orders.qty, products.title FROM orders, products WHERE orders.productId = products._id AND orders.userId=%s", (userId))
@@ -474,8 +577,9 @@ def place_order(userId):
         total = cur.fetchall()
         ords = orders_serializer(results)
         total1 = int(total[0][0])
-        
-        return jsonify({"orders": ords, "totalPrice": total1 })
+        resp = make_response({"orders": ords, "totalPrice": total1 })
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
 
 @app.route('/api/shipping/address/<userId>', methods=["POST", "GET"])
 def shipping_address(userId):
@@ -497,25 +601,35 @@ def shipping_address(userId):
                 cur.execute(sql, (userId, fullName, address, city, postalCode, country))
                 cur.connection.commit()
                 cur.close()
-                return {"msg": "User adress added"}
+                resp = make_response({"msg": "User address added"})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp
             except MySQLdb.Error as err:
-                return {"err": err.args[1]}
+                resp = make_response({"err": err.args[1]})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp
         else:
             try:
                 sql ='CREATE TABLE addresses(_id int(50) not null primary key, fullname varchar(80) NOT NULL,address varchar(80) NOT NULL, city varchar(80) NOT NULL, postalcode varchar(80) NOT NULL, country varchar(80) NOT NULL)'
                 cur.execute(sql)
                 
             except MySQLdb.Error as err:
-                return {"err": err.args[1]}
+                resp = make_response({"err": err.args[1]})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp
 
             try:
                 sql1 = "INSERT INTO addresses(_id , fullname, address, city, postalcode, country) VALUES(%s,%s,%s,%s,%s,%s)"
                 cur.execute(sql1, (userId, fullName, address, city, postalCode, country))
                 cur.connection.commit()
                 cur.close()
-                return {"msg": "User adress added"}
+                resp = make_response({"msg": "User address added"})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp
             except MySQLdb.Error as err:
-                return {"err": err.args[1]}
+                resp = make_response({"err": err.args[1]})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp
     elif request.method == "GET":
         cur.execute("show tables like 'addresses'")
         addresses = cur.fetchall()
@@ -525,11 +639,17 @@ def shipping_address(userId):
             address = cur.fetchall()
             if address:
                 address = address[0]
-                return {"address": "Current User has an address"}
+                resp = make_response({"address": "Current User has an address"})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp
             else:
-                return {"msg": "Current User has no address"}
+                resp = make_response({"msg": "Current User has no address"})
+                resp.headers['Access-Control-Allow-Origin'] = '*'
+                return resp
         else:
-            return {"msg": "Current User has no address"}
+            resp = make_response({"msg": "Current User has no address"})
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
 
 
 
