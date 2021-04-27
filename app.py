@@ -18,10 +18,10 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
 
-app.config["MYSQL_HOST"] = 'localhost'
-app.config["MYSQL_USER"] = 'root'
-app.config["MYSQL_PASSWORD"] = 'I@manartist1'
-app.config["MYSQL_DB"] = 'compproject'
+app.config["MYSQL_HOST"] = 'sql5.freesqldatabase.com'
+app.config["MYSQL_USER"] = 'sql5407697'
+app.config["MYSQL_PASSWORD"] = 'dmy1zjAqk3'
+app.config["MYSQL_DB"] = 'sql5407697'
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
