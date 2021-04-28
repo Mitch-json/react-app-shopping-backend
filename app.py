@@ -412,7 +412,7 @@ def remove_product(_id):
         cur.execute(sql)
         cur.connection.commit()
         cur.close()
-        resp = make_response({"msg"})        
+        resp = make_response({"msg": "Product Deleted"})        
         resp.headers['Access-Control-Allow-Origin'] = '*'
         return resp
     except  MySQLdb.Error as err:
@@ -428,7 +428,7 @@ def remove_category(_id):
         cur.execute(sql)
         cur.connection.commit()
         cur.close()
-        resp = make_response({"msg"})
+        resp = make_response({"msg": "Category Deleted"})
         resp.headers['Access-Control-Allow-Origin'] = '*'
         return resp
     except  MySQLdb.Error as err:
