@@ -9,6 +9,8 @@ import jwt
 from flask_bcrypt import Bcrypt
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeSerializer, SignatureExpired
+from flask_cors import CORS, cross_origin
+
 
 
 UPLOAD_FOLDER = 'static/images/product_images'
@@ -16,7 +18,8 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
-
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 app.config["MYSQL_HOST"] = 'sql5.freesqldatabase.com'
 app.config["MYSQL_USER"] = 'sql5407697'
@@ -38,6 +41,8 @@ mail = Mail(app)
 mysql = MySQL(app)
 
 TABLES = {}
+
+print(url_for('static', filename='product_images'))
 
 def allowed_file(filename):
     return '.' in filename and \
