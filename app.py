@@ -583,7 +583,7 @@ def place_order(userId):
             cur.execute("SELECT SUM(price) FROM orders WHERE userId=%s", (userId))
             total = cur.fetchall()
             ords = orders_serializer(results)
-            total1 = total[0][0]
+            total1 = int(total[0][0])
             resp = make_response({"orders": ords, "totalPrice": total1 })
             resp.headers['Access-Control-Allow-Origin'] = '*'
             return resp
