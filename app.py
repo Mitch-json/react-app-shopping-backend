@@ -574,15 +574,24 @@ def place_order(userId):
         return resp
 
     elif request.method == "GET":
-        cur.execute("SELECT orders.userId, orders.productId, orders.ordertime, orders.price, orders.qty, products.title FROM orders, products WHERE orders.productId = products._id AND orders.userId=%s", (userId))
-        results = cur.fetchall()
-        cur.execute("SELECT SUM(price) FROM orders WHERE userId=%s", (userId))
-        total = cur.fetchall()
-        ords = orders_serializer(results)
-        total1 = int(total[0][0])
-        resp = make_response({"orders": ords, "totalPrice": total1 })
-        resp.headers['Access-Control-Allow-Origin'] = '*'
-        return resp
+        cur.execute("SHOW TABLES LIKE 'orders'")
+        orders = cur.fetchall()
+
+        if orders:
+            cur.execute("SELECT orders.userId, orders.productId, orders.ordertime, orders.price, orders.qty, products.title FROM orders, products WHERE orders.productId = products._id AND orders.userId=%s", (userId))
+            results = cur.fetchall()
+            cur.execute("SELECT SUM(price) FROM orders WHERE userId=%s", (userId))
+            total = cur.fetchall()
+            ords = orders_serializer(results)
+            total1 = total[0][0]
+            resp = make_response({"orders": ords, "totalPrice": total1 })
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
+        else:
+            resp = make_response({"msg": "no orders" })
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
+            
 
 @app.route('/api/shipping/address/<userId>', methods=["POST", "GET"])
 def shipping_address(userId):
