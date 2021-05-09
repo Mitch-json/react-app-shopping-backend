@@ -21,10 +21,10 @@ bcrypt = Bcrypt(app)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-app.config["MYSQL_HOST"] = 'sql5.freesqldatabase.com'
-app.config["MYSQL_USER"] = 'sql5407697'
-app.config["MYSQL_PASSWORD"] = 'dmy1zjAqk3'
-app.config["MYSQL_DB"] = 'sql5407697'
+app.config["MYSQL_HOST"] = 'b9cz6y2ofpfybnmismjv-mysql.services.clever-cloud.com'
+app.config["MYSQL_USER"] = 'uuaoqrbmkckhojaa'
+app.config["MYSQL_PASSWORD"] = 'h8hhQNCRFR9WVpOEPjgk'
+app.config["MYSQL_DB"] = 'b9cz6y2ofpfybnmismjv'
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
