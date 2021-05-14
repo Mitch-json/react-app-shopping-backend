@@ -31,7 +31,7 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USERNAME'] = 'mitchjaga@gmail.com'
-app.config['MAIL_PASSWORD'] = 'gzmqjhinejescgnk'
+app.config['MAIL_PASSWORD'] = 'ljgyyzkwkzgbtljj'
 app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_USE_TLS'] = True
 
