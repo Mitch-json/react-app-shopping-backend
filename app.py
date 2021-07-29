@@ -21,17 +21,17 @@ bcrypt = Bcrypt(app)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-app.config["MYSQL_HOST"] = 'b9cz6y2ofpfybnmismjv-mysql.services.clever-cloud.com'
-app.config["MYSQL_USER"] = 'uuaoqrbmkckhojaa'
-app.config["MYSQL_PASSWORD"] = 'h8hhQNCRFR9WVpOEPjgk'
-app.config["MYSQL_DB"] = 'b9cz6y2ofpfybnmismjv'
+app.config["MYSQL_HOST"] = '************'
+app.config["MYSQL_USER"] = '************'
+app.config["MYSQL_PASSWORD"] = '************'
+app.config["MYSQL_DB"] = '************'
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_SERVER'] = '************'
 app.config['MAIL_PORT'] = 587
-app.config['MAIL_USERNAME'] = 'mitchjaga@gmail.com'
-app.config['MAIL_PASSWORD'] = 'ljgyyzkwkzgbtljj'
+app.config['MAIL_USERNAME'] = '************'
+app.config['MAIL_PASSWORD'] = '************'
 app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_USE_TLS'] = True
 
@@ -105,7 +105,7 @@ def signin():
                     "name": user[0][1],
                     "email": user[0][2],
                     "isAdmin": user[0][4],
-                }, '28736746835476527365475263rtuyfdcvxvcvskek6ftwefdgfvshcvzghcygsveyfgyefdsbmv', algorithm="HS256")
+                }, '*************', algorithm="HS256")
             
             if user[0][5] == 0:
                 resp = make_response({"_id": user[0][0], "name": user[0][1],"email": user[0][2],"isAdmin": user[0][4],"token":encoded_jwt})
